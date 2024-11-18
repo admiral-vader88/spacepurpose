@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recyclable or Non-Recyclable</title>
+ 
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            background-image: url('https://media.istockphoto.com/id/498478219/photo/stars-at-night-sky.jpg?b=1&s=612x612&w=0&k=20&c=JtQpCgYYSyiF63fgKDtsa8fSvVhf_QjkSN_Y0gIiICs=');
+            background-size: cover;
+            background-attachment: fixed;
+            background-repeat: no-repeat;
+            position: relative;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex items-center justify-center">
+    <div class="bg-white bg-opacity-90 rounded-lg shadow-lg p-8 max-w-lg w-full">
+        <div class="text-center">
+            <h1 class="text-4xl font-extrabold text-green-600">Recyclable or Non-Recyclable</h1>
+            <p class="mt-2 text-gray-600">Upload an image to find out!</p>
+        </div>
+        <form id="uploadForm" class="mt-6" method="POST" action="/predict" enctype="multipart/form-data">
+            <div class="mb-4">
+                <label for="file" class="block text-sm font-medium text-gray-700">Upload Image</label>
+                <input type="file" class="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-green-50 file:text-green-600 hover:file:bg-green-100" id="file" name="file" required>
+            </div>
+            <button type="submit" class="w-full bg-green-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-green-700 transition duration-200">Predict</button>
+        </form>
+        <div id="result" class="hidden mt-4 p-4 rounded-lg text-center"></div>
+    </div>
+
+    
+    <script>
+        const form = document.getElementById('uploadForm');
+        const resultDiv = document.getElementById('result');
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const formData = new FormData(form);
+            resultDiv.classList.add('hidden');
+            resultDiv.className = 'hidden mt-4 p-4 rounded-lg text-center'; // Reset classes
+            try {
+                const response = await fetch('/predict', {
+                    method: 'POST',
+                    body: formData,
+                });
+                const data = await response.json();
+                resultDiv.textContent = `Prediction: ${data.prediction}`;
+
+                // Dynamically add classes based on prediction
+                resultDiv.classList.remove('hidden');
+                if (data.prediction === 'recyclable') {
+                    resultDiv.classList.add('bg-green-100', 'text-green-700');
+                } else {
+                    resultDiv.classList.add('bg-red-100', 'text-red-700');
+                }
+            } catch (error) {
+                resultDiv.textContent = 'Error processing your request.';
+                resultDiv.classList.remove('hidden');
+                resultDiv.classList.add('bg-red-100', 'text-red-700');
+            }
+        });
+    </script>
+</body>
+</html>
